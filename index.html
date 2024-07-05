@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" crossorigin="anonymous">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"  crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
+
+   
+    
+
+</head>
+<body>
+
+<div id="app" class="container pt-4">
+	<div class="row">
+		<div class="col-4">
+			<div class="row"><div class="col">
+			<div class="form-group">
+				<label for="exampleFormControlTextarea1">Source</label>
+				<textarea v-model="textSource" v-on:change="changeSource" class="form-control" id="exampleFormControlTextarea1" rows="6" style="white-space: pre-wrap;"></textarea>
+			</div>
+			</div></div>
+		
+			<div class="row"><div class="col">
+			<div class="form-group">
+				<label for="exampleFormControlTextarea1">Pretty</label>
+				<textarea v-model="textPretty" v-on:change="changePretty" class="form-control" id="exampleFormControlTextarea1" rows="6" style="white-space: pre-wrap;"></textarea>
+			</div>
+			</div></div>
+		</div>
+		
+		<div class="col-8">
+			<label>Vars</label>
+			<div v-for="(variable, i) in variables" class="row">
+				<div class="col-5">
+					<input v-model="variable.key" v-on:change="changeVariableKey(i)" type="text" class="form-control" placeholder="%key%">
+				</div>
+				<div class="col-5">
+					<input v-model="variable.value" v-on:change="changeVariableValue(i)" type="text" class="form-control" placeholder="value">
+				</div>
+				<div class="col-2">
+					<button type="button" v-on:click="removeVariable" class="btn btn-danger">-</button>
+				</div>
+			</div>
+		
+		
+			<div class="row">
+				<div class="col">
+					<button type="button" v-on:click="addVariable" class="btn btn-success">+</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+</body>
+
+
+<script>
+new Vue({
+  el: '#app',
+  data: {
+    textSource : "",
+	textPretty : "",
+	variables : [],
+	defaultVariables : [
+	{
+		key: "%SPEECH_ON%",
+		value: '\n\n"'
+	},
+	{
+		key: "%SPEECH_OFF%",
+		value: '"\n\n',
+		pattern : /\"(\r\n\r\n|\n\n|$)/g
+	},
+	{
+		key: "\\'",
+		value: "'"
+	}]
+  },
+  
+  computed: {
+	allVariables : function()
+	{
+		return this.defaultVariables.concat(this.variables);
+	}
+  },
+  
+  methods: {
+    addVariable : function(_key)
+	{
+		let _value = "";
+		if (_key == undefined || _key == null)
+		{
+			_key = "";
+		}
+		else if(localStorage.getItem(_key)) {
+			_value = localStorage.getItem(_key)
+		}
+		
+		this.variables.push({
+		  key: _key,
+		  value : _value
+		})
+	},
+	
+	removeVariable : function(i)
+	{
+		this.variables.splice(i, 1);
+		this.updatePretty();
+	},
+	
+	changeVariableKey : function(i)
+	{
+		this.updatePretty();
+		localStorage.setItem(this.variables[i].key, this.variables[i].value);
+	},
+	
+	changeVariableValue : function(i)
+	{
+		this.updatePretty();
+		localStorage.setItem(this.variables[i].key, this.variables[i].value);
+	},
+	
+	updatePretty : function()
+	{
+		this.textPretty = "" + this.textSource;
+		for(let v of this.allVariables)
+		{
+			if(v.value !== "" && v.key !== "")
+			{
+				this.textPretty = this.textPretty.replaceAll(v.key, v.value);
+			}
+		}		
+	},
+	
+	changeSource : function()
+	{
+		let parsedVars = this.textSource.match(/%[a-zA-Z0-9]*%/g);
+		if (parsedVars != null)
+		{
+			for(let v of parsedVars)
+			{
+				let found = this.allVariables.findIndex((element) => element.key == v);
+				if(found >= 0)
+				{
+					continue;
+				}
+				this.addVariable(v);
+			}
+		}
+		this.updatePretty();
+	},
+	
+	changePretty : function()
+	{
+		this.textSource = "" + this.textPretty;
+
+		
+		for(let v of this.allVariables)
+		{
+			let value = v.value;
+			if ("pattern" in v){
+				value = v.pattern;
+			}
+			this.textSource = this.textSource.replaceAll(value, v.key);
+		}
+	}
+	
+	
+	
+	
+  }
+})
+
+
+</script>
+</html>
+
+
+
+<!--
+<script type="text/javascript">
+	
+	function init() {
+	
+	}
+    window.onload = init();
+	
+</script>
+-->
