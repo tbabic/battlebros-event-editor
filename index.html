@@ -44,14 +44,14 @@
 					<input v-model="variable.value" v-on:change="changeVariableValue(i)" type="text" class="form-control" placeholder="value">
 				</div>
 				<div class="col-2">
-					<button type="button" v-on:click="removeVariable" class="btn btn-danger">-</button>
+					<button type="button" v-on:click="removeVariable(i)" class="btn btn-danger">-</button>
 				</div>
 			</div>
 		
 		
 			<div class="row">
 				<div class="col">
-					<button type="button" v-on:click="addVariable" class="btn btn-success">+</button>
+					<button type="button" v-on:click="addVariable()" class="btn btn-success">+</button>
 				</div>
 			</div>
 		</div>
@@ -168,6 +168,10 @@ new Vue({
 			let value = v.value;
 			if ("pattern" in v){
 				value = v.pattern;
+			}
+			if(value == "")
+			{
+				continue;
 			}
 			this.textSource = this.textSource.replaceAll(value, v.key);
 		}
