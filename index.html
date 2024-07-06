@@ -130,14 +130,15 @@ new Vue({
 	
 	updatePretty : function()
 	{
-		this.textPretty = "" + this.textSource;
+		this.textPretty = "" + this.textSource.trim();
 		for(let v of this.allVariables)
 		{
 			if(v.value !== "" && v.key !== "")
 			{
 				this.textPretty = this.textPretty.replaceAll(v.key, v.value);
 			}
-		}		
+		}
+		this.textPretty.trim();
 	},
 	
 	changeSource : function()
@@ -160,7 +161,7 @@ new Vue({
 	
 	changePretty : function()
 	{
-		this.textSource = "" + this.textPretty;
+		this.textSource = "" + this.textPretty.trim();
 
 		
 		for(let v of this.allVariables)
@@ -175,6 +176,7 @@ new Vue({
 			}
 			this.textSource = this.textSource.replaceAll(value, v.key);
 		}
+		this.textSource.trim();
 	}
 	
 	
